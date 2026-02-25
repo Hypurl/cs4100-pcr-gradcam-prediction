@@ -1,6 +1,6 @@
 # cs4100-pcr-gradcam-prediction
 
-** Contributors: Christian Garcia, Tommaso Maga, Yu-Chun Ou, Peter SantaLucia
+**Contributors:** Christian Garcia, Tommaso Maga, Yu-Chun Ou, Peter SantaLucia
 
 ## Purpose
 The group has decided to predict patient breast cancer outcomes using MRI scans and patient metadata. An accurate measure of these outcomes is given by the pathological complete response (PCR) metric for triple-negative breast cancer (TNBC). That is, the complete remission of an invasive cancer that is found in a tissue sample. For TNBC Patients with PCR, 90% of patients experience event-free survival (EFS) over a period of three years, while only 67% experienced EFS over the same period (Toss, et al.). By predicting PCR for some patients, we are able to accurately predict patient outcomes over a period of three years. 
