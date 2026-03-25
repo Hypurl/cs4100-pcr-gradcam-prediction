@@ -1,5 +1,7 @@
 # cs4100-pcr-gradcam-prediction
 
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+
 **Contributors:** Christian Garcia, Tommaso Maga, Yu-Chun Ou, Peter SantaLucia
 
 ## Purpose
@@ -16,6 +18,10 @@ By having an accurate prediction of a patient’s PCR, doctors can preemptively 
 * **Interpretability:** We will implement **HiResCAM** to visualize the model's decision-making process. Because medical decisions require high transparency, HiResCAM will ensure the generated heatmaps are mathematically faithful to the model's internal weights. 
 * **Stretch Goal:** If time allows, we will implement custom positive/negative filters on the HiResCAM outputs. This toggle will allow clinicians to isolate the specific tissue features acting as positive contributors (evidence *for* pCR) versus negative contributors (evidence *against* pCR).
 
-Works Cited
-Toss, Angela, et al. “Predictive factors for relapse in triple-negative breast cancer patients without pathological complete response after neoadjuvant chemotherapy.” Frontiers in Oncology, vol. 12, 1 Dec. 2022, https://doi.org/10.3389/fonc.2022.1016295. 
+## Works Cited
+Draelos, Rachel Lea, and Lawrence Carin. “Use HiResCAM Instead of Grad-CAM for Faithful Explanations of Convolutional Neural Networks.” *arXiv*, 17 Nov. 2020, arxiv.org/abs/2011.08891.
+
+Fridman, Naomi, et al. “BreastDCEDL: A Deep Learning–Ready Breast DCE-MRI Dataset.” *Zenodo*, 9 June 2025, doi.org/10.5281/zenodo.15627233.
+
+Toss, Angela, et al. “Predictive Factors for Relapse in Triple-Negative Breast Cancer Patients without Pathological Complete Response after Neoadjuvant Chemotherapy.” *Frontiers in Oncology*, vol. 12, 1 Dec. 2022, doi.org/10.3389/fonc.2022.1016295.
 
