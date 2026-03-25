@@ -1,10 +1,32 @@
+# Dataset (do not commit)
 data/BreastDCEDL_ISPY1_min_crop/
 
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+dist/
+build/*.egg
+
+# Virtual environments
 .venv/
 venv/
-*.pth
+env/
 
+# Model weights
+*.pth
+*.ckpt
+*.pt
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
 **/.idea/
+.vscode/
 .DS_Store
+
+# Sphinx build output
+build/
