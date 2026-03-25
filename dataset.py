@@ -49,4 +49,13 @@ class BreastDCEDataset(Dataset):
         # TODO: Normalize voxel values
         
         return img_tensor, label_tensor
+
+# main for testing
+if __name__ == "__main__":
+    CSVPATH = "./BreastDCEDL_metadata_min_crop.csv"
+    IMGPATH = "./BreastDCEDL_ISPY1_min_crop"
     
+    dataset = BreastDCEDataset(csv_dir=CSVPATH, img_dir=IMGPATH, training_set=True)
+    loader = DataLoader(dataset, batch_size=2, shuffle=False, num_workers=0)
+
+    print(f"{len(dataset)} MRI scans found.")
