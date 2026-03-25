@@ -1,3 +1,3 @@
 """
-TODO: Visualize the attention maps genereted from gradcam.py
+TODO: Visualize the attention maps genereted from hirescam.py
 """
