@@ -4,3 +4,5 @@ torch
 nibabel
 pytorch_lightning
 matplotlib
+medcam
+opencv-python
