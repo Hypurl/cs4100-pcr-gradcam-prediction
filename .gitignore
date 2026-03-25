@@ -1,0 +1,9 @@
+data/BreastDCEDL_ISPY1_min_crop/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.pth
+
+.DS_Store
