@@ -6,4 +6,5 @@ __pycache__/
 venv/
 *.pth
 
+**/.idea/
 .DS_Store
