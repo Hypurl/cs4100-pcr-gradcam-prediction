@@ -4,6 +4,9 @@
 
 **Contributors:** Christian Garcia, Tommaso Maga, Yu-Chun Ou, Peter SantaLucia
 
+## License
+This project is licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) to comply with the licensing terms of the BreastDCEDL dataset, which itself adopts CC BY-NC 4.0 as the most restrictive license among its three source datasets from TCIA. Specifically, while I-SPY 1 (CC BY 3.0) and I-SPY 2 (CC BY 4.0) permit commercial use, the Duke Breast Cancer MRI dataset (CC BY-NC 4.0) does not. As a derivative work integrating all three sources, this project inherits that restriction. Academic use, research, and adaptation with attribution are welcome.
+
 ## Purpose
 The group has decided to predict patient breast cancer outcomes using MRI scans and patient metadata. An accurate measure of these outcomes is given by the pathological complete response (PCR) metric for triple-negative breast cancer (TNBC). That is, the complete remission of an invasive cancer that is found in a tissue sample. For TNBC Patients with PCR, 90% of patients experience event-free survival (EFS) over a period of three years, while only 67% experienced EFS over the same period (Toss, et al.). By predicting PCR for some patients, we are able to accurately predict patient outcomes over a period of three years. 
 By having an accurate prediction of a patient’s PCR, doctors can preemptively consider other treatment plans/evaluate the need for surgery for some patient. Given the aggressiveness of TNBC, it’s widely studied, leading to many high-quality multiparametric MRI datasets available for academic use. With these datasets, we are able to train some model on 3D volumetric data that will help us predict long-term patient outcomes. 
