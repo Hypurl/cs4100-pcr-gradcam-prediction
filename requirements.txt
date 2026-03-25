@@ -6,3 +6,6 @@ pytorch_lightning
 matplotlib
 medcam
 opencv-python
+sphinx
+furo
+myst-parser
