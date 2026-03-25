@@ -2,3 +2,5 @@ pandas
 numpy
 torch
 nibabel
+pytorch_lightning
+matplotlib
