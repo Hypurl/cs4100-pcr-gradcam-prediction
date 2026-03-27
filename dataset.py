@@ -64,6 +64,9 @@ class BreastDCEDataset(Dataset):
         
         img_tensor = torch.nn.functional.interpolate(img_tensor.unsqueeze(0), size=(256, 256, 32), mode='trilinear', align_corners=False).squeeze(0)
         
+        # normalize voxel to [0, 1]
+        img_tensor = (img_tensor - img_tensor.min()) / (img_tensor.max() - img_tensor.min())
+        
         return img_tensor, label_tensor
 
 # main for testing
@@ -81,7 +84,7 @@ if __name__ == "__main__":
     fig, axes = plt.subplots(1, 3, figsize=(9, 3))
     
     for i, s in enumerate([0, 15, 31]):
-        axes[i].imshow(img[:, :, s])
+        axes[i].imshow(img[:, :, s], cmap="gray")
         axes[i].set_title(f"Slice {s+1}")
         axes[i].axis("off")
         
