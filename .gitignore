@@ -30,3 +30,7 @@ env/
 
 # Sphinx build output
 build/
+
+# Training output
+checkpoints/
+lightning_logs/
