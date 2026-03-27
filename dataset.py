@@ -12,14 +12,32 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import matplotlib.pyplot as plt
 
+PATHS = [
+    ("BreastDCEDL_ISPY1_min_crop", "dce"),
+    ("BreastDCEDL_ISPY2_min_crop", "dce"),
+    ("BreastDCEDL_DUKE_min_crop",  "crop_min_dce")
+]
+
+def get_path(pid, data_dir):
+    for ds, dce in PATHS:
+        matches = glob.glob(os.path.join(data_dir, ds, dce, f"{pid}*.nii.gz"))
+        
+        if matches:
+            return matches[0]
+
 class BreastDCEDataset(Dataset):
-    def __init__(self, csv_dir, img_dir, training_set = True):
-        self.img_dir = img_dir
+    def __init__(self, csv_dir, data_dir, training_set=True):
+        self.data_dir = data_dir
         self.metadata = pd.read_csv(csv_dir)
         
-        # TODO: Update to use more than ISPY1
         self.metadata['pid'] = self.metadata['pid'].astype(str)
-        self.metadata = self.metadata[self.metadata['pid'].str.startswith('ISPY1')]
+        
+        # drops all entries missing pcr or test
+        before = len(self.metadata)
+        self.metadata = self.metadata.dropna(subset=["pCR", "test"])
+        
+        if before - len(self.metadata):
+            print(f"{before - len(self.metadata)} entries dropped for missing pCR or test")
         
         if training_set:
             self.metadata = self.metadata[self.metadata['test'].astype(int) == 0]
@@ -35,9 +53,8 @@ class BreastDCEDataset(Dataset):
         pid = self.metadata.loc[index, 'pid']
         label = self.metadata.loc[index, 'pCR']
         
-        matches = glob.glob(os.path.join(self.img_dir, 'dce', f"{pid}*.nii.gz"))
-        
-        nib_img = nibabel.load(matches[0]).get_fdata().astype(np.float32)
+        path = get_path(pid, self.data_dir)
+        nib_img = nibabel.load(path).get_fdata().astype(np.float32)
         
         nib_img = np.transpose(nib_img, (2, 1, 0))
         nib_img = np.expand_dims(nib_img, axis=0) 
@@ -47,16 +64,14 @@ class BreastDCEDataset(Dataset):
         
         img_tensor = torch.nn.functional.interpolate(img_tensor.unsqueeze(0), size=(256, 256, 32), mode='trilinear', align_corners=False).squeeze(0)
         
-        # TODO: Normalize voxel values
-        
         return img_tensor, label_tensor
 
 # main for testing
 if __name__ == "__main__":
     CSVPATH = "./data/BreastDCEDL_metadata_min_crop.csv"
-    IMGPATH = "./data/BreastDCEDL_ISPY1_min_crop"
+    DATAPATH = "./data"
     
-    dataset = BreastDCEDataset(csv_dir=CSVPATH, img_dir=IMGPATH, training_set=False)
+    dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=True)
 
     print(f"{len(dataset)} MRI scans found.")
     

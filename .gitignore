@@ -1,5 +1,7 @@
 # Dataset (do not commit)
 data/BreastDCEDL_ISPY1_min_crop/
+data/BreastDCEDL_ISPY2_min_crop/
+data/BreastDCEDL_DUKE_min_crop/
 
 # Python
 __pycache__/
