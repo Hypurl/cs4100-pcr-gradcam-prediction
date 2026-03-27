@@ -9,6 +9,7 @@ opencv-python
 sphinx
 furo
 myst-parser
-scikit-learn
 torchmetrics
 triton-windows
+
+# scikit-learn

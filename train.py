@@ -8,9 +8,10 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchmetrics import AUROC, Accuracy    
-from dataset import BreastDCEDataset
-from sklearn.model_selection import train_test_split    
+from dataset import BreastDCEDataset, Split  
 import numpy as np
+
+# from sklearn.model_selection import train_test_split  
 
 torch.set_float32_matmul_precision("high")
 
@@ -21,10 +22,10 @@ BATCH_SIZE = 8
 LEARNING_RATE = 0.0001
 EPOCHS = 30
 NUM_WORKERS = 8
-PERSISTENT_WORKERS = True
+PERSISTENT_WORKERS = bool(NUM_WORKERS)
 SEED = 67
 
-VALIDATION_SPLIT = 0.2
+# VALIDATION_SPLIT = 0.2
 
 class ConvBlock(nn.Module):
     def __init__(self, num_input_channels, num_output_channels):
@@ -66,6 +67,10 @@ class pcrCNN(pl.LightningModule):
         self.train_auroc = AUROC(task="binary")
         self.val_auroc = AUROC(task="binary")
         self.val_acc = Accuracy(task="binary")
+
+        self.test_auroc = AUROC(task="binary")
+        self.test_acc = Accuracy(task="binary")
+
         
     def forward(self, x):
         return self.classifier(self.encoder(x))
@@ -112,20 +117,20 @@ class pcrCNN(pl.LightningModule):
     def test_step(self, batch, batch_idx):
         loss, probs, labels = self.shared_step(batch)
         
-        self.val_auroc.update(probs, labels.int())
-        self.val_acc.update(probs, labels.int())
+        self.test_auroc.update(probs, labels.int())
+        self.test_acc.update(probs, labels.int())
         
         self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
         
         return loss
     
     def on_test_epoch_end(self):
-        self.log("test_auroc", self.val_auroc.compute(), prog_bar=True)
-        self.log("test_acc", self.val_acc.compute(), prog_bar=True)
+        self.log("test_auroc", self.test_auroc.compute(), prog_bar=True)
+        self.log("test_acc", self.test_acc.compute(), prog_bar=True)
         
-        self.val_auroc.reset()
-        self.val_acc.reset()
-                
+        self.test_auroc.reset()
+        self.test_acc.reset()
+
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(
             self.parameters(),
@@ -144,10 +149,20 @@ class pcrCNN(pl.LightningModule):
             "optimizer": optimizer,
             "lr_scheduler": {"scheduler": scheduler, "monitor": "val_auroc"}
         }
+    
+    def on_train_batch_end(self, outputs, batch, batch_idx):
+        """Checks for NaN weights at the end of every training batch."""
+        for name, param in self.named_parameters():
+            if torch.isnan(param).any():
+                print(f"\n[CRITICAL WARNING] NaN weights detected in layer: {name} at batch {batch_idx}!")
+                # Optional: break to stop spamming the console
+                break
 
 def main():
     pl.seed_everything(SEED)
     
+    # OLD IMPLEMENTATION
+    """
     # Validation takes 20% of training set rather than using the test set
     full_set = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=True)
     labels = full_set.metadata["pCR"].values.astype(int)
@@ -164,11 +179,21 @@ def main():
     
     print(f"Training set length: {len(training_dataset)}")
     print(f"Validation set length: {len(validation_dataset)}")
-    
+    """
+
+    training_dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, split=Split.TRAIN)
+    validation_dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, split=Split.VAL)
+    test_dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, split=Split.TEST)
+
+    print(f"Training set length: {len(training_dataset)}")
+    print(f"Validation set length: {len(validation_dataset)}")
+    print(f"Test set length: {len(test_dataset)}")
+
+    labels = training_dataset.metadata["pCR"].values.astype(int)
     num_pos = labels.sum()
     num_neg = len(labels) - num_pos
-    pos_weight = num_neg / num_pos
-    
+    pos_weight = num_neg / num_pos 
+
     print(f"There exist {num_pos} positive samples and {num_neg} negative samples")
     print(f"pos_weight = {pos_weight}")
     
@@ -225,7 +250,8 @@ def main():
         precision="32",
         devices=1,
         callbacks=[ckpt_auroc, ckpt_loss, early_stop_callback],
-        log_every_n_steps=1
+        log_every_n_steps=1,
+        detect_anomaly=True
     )
     
     trainer.fit(model, training_dataloader, validation_dataloader)
@@ -236,8 +262,10 @@ def main():
     best_loss = pcrCNN.load_from_checkpoint(ckpt_loss.best_model_path, weights_only=False)
     torch.save(best_loss.state_dict(), "model_best_loss.pth")
     
-    
-    test_dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=False)
+    # test_dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=False)
+
+    best_auroc_path = ckpt_auroc.best_model_path
+    best_loss_path = ckpt_loss.best_model_path
     
     test_dataloader = DataLoader(
         test_dataset,
@@ -249,10 +277,10 @@ def main():
     )
     
     print("TESTING BEST AUROC")
-    trainer.test(model, test_dataloader, ckpt_path=ckpt_auroc.best_model_path, weights_only=False)
+    trainer.test(model, test_dataloader, ckpt_path=best_auroc_path, weights_only=False)
 
     print("TESTING BEST LOSS")
-    trainer.test(model, test_dataloader, ckpt_path=ckpt_loss.best_model_path, weights_only=False)
+    trainer.test(model, test_dataloader, ckpt_path=best_loss_path, weights_only=False)
 
 if __name__ == "__main__":
     main()

@@ -11,12 +11,18 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 import matplotlib.pyplot as plt
+from enum import IntEnum
 
 PATHS = [
     ("BreastDCEDL_ISPY1_min_crop", "dce"),
     ("BreastDCEDL_ISPY2_min_crop", "dce"),
     ("BreastDCEDL_DUKE_min_crop",  "crop_min_dce")
 ]
+
+class Split(IntEnum):
+    TRAIN = 0
+    VAL = 1
+    TEST = 2
 
 def get_path(pid, data_dir):
     for ds, dce in PATHS:
@@ -26,7 +32,7 @@ def get_path(pid, data_dir):
             return matches[0]
 
 class BreastDCEDataset(Dataset):
-    def __init__(self, csv_dir, data_dir, training_set=True):
+    def __init__(self, csv_dir, data_dir, split=Split.TRAIN):
         self.data_dir = data_dir
         self.metadata = pd.read_csv(csv_dir)
         
@@ -39,10 +45,7 @@ class BreastDCEDataset(Dataset):
         if before - len(self.metadata):
             print(f"{before - len(self.metadata)} entries dropped for missing pCR or test")
         
-        if training_set:
-            self.metadata = self.metadata[self.metadata['test'].astype(int) == 0]
-        else:
-            self.metadata = self.metadata[self.metadata['test'].astype(int) == 1]
+        self.metadata = self.metadata[self.metadata['test'].astype(int) == split.value]
             
         self.metadata = self.metadata.reset_index(drop=True)
         
@@ -74,7 +77,7 @@ if __name__ == "__main__":
     CSVPATH = "./data/BreastDCEDL_metadata_min_crop.csv"
     DATAPATH = "./data"
     
-    dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=True)
+    dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, split=Split.TRAIN)
 
     print(f"{len(dataset)} MRI scans found.")
     
