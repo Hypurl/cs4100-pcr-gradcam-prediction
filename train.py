@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 
 CSVPATH = "./data/BreastDCEDL_metadata_min_crop.csv"
-IMGPATH = "./data/BreastDCEDL_ISPY1_min_crop"
+DATAPATH = "./data"
 
 BATCH_SIZE = 4
 LEARNING_RATE = 0.01
@@ -144,7 +144,7 @@ def main():
     pl.seed_everything(SEED)
     
     # Validation takes 20% of training set rather than using the test set
-    full_set = BreastDCEDataset(csv_dir=CSVPATH, img_dir=IMGPATH, training_set=True)
+    full_set = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=True)
     labels = full_set.metadata["pCR"].values.astype(int)
     
     train_index, val_index = train_test_split(
@@ -213,7 +213,7 @@ def main():
     trainer.fit(model, training_dataloader, validation_dataloader)
     torch.save(pcrCNN.load_from_checkpoint(checkpoint_callback.best_model_path, weights_only=False).state_dict(), "model.pth")
     
-    test_dataset = BreastDCEDataset(csv_dir=CSVPATH, img_dir=IMGPATH, training_set=False)
+    test_dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=False)
     
     test_dataloader = DataLoader(
         test_dataset,
