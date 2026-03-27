@@ -20,6 +20,8 @@ DATAPATH = "./data"
 BATCH_SIZE = 8
 LEARNING_RATE = 0.0001
 EPOCHS = 30
+NUM_WORKERS = 8
+PERSISTENT_WORKERS = True
 SEED = 67
 
 VALIDATION_SPLIT = 0.2
@@ -42,18 +44,19 @@ class pcrCNN(pl.LightningModule):
         self.save_hyperparameters()
         
         self.encoder = nn.Sequential(
-            ConvBlock(1, 8),
-            ConvBlock(8, 16),
+            ConvBlock(1, 16),
             ConvBlock(16, 32),
-            nn.AdaptiveAvgPool3d(1)
+            ConvBlock(32, 64),
+            ConvBlock(64, 128),
+            nn.AdaptiveAvgPool3d((2, 2, 2))
         )
         
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(32, 16),
+            nn.Linear(1024, 128),
             nn.ReLU(inplace=True),
             nn.Dropout(0.5),
-            nn.Linear(16, 1)
+            nn.Linear(128, 1)
         )
         
         self.criterion = nn.BCEWithLogitsLoss(
@@ -174,25 +177,25 @@ def main():
         training_dataset,
         shuffle=True,
         batch_size=BATCH_SIZE,
-        num_workers=8,
+        num_workers=NUM_WORKERS,
         pin_memory=True,
-        persistent_workers=True
+        persistent_workers=PERSISTENT_WORKERS
     ) 
     
     validation_dataloader = DataLoader(
         validation_dataset,
         shuffle=False,
         batch_size=BATCH_SIZE,
-        num_workers=8,
+        num_workers=NUM_WORKERS,
         pin_memory=True,
-        persistent_workers=True
+        persistent_workers=PERSISTENT_WORKERS
     )
     
     model = pcrCNN(learning_rate=LEARNING_RATE, pos_weight=pos_weight)
     
     ckpt_auroc = ModelCheckpoint(
         dirpath="./checkpoints",
-        filename="{epoch:02d}-{val_auroc:.4f}",
+        filename="best-auroc",
         monitor="val_auroc",
         mode="max",
         save_top_k=1,
@@ -201,7 +204,7 @@ def main():
 
     ckpt_loss = ModelCheckpoint(
         dirpath="./checkpoints",
-        filename="{epoch:02d}-{val_loss:.4f}",
+        filename="best-loss",
         monitor="val_loss",
         mode="min",
         save_top_k=1,
@@ -240,9 +243,9 @@ def main():
         test_dataset,
         shuffle=False,
         batch_size=BATCH_SIZE,
-        num_workers=8,
+        num_workers=NUM_WORKERS//2,
         pin_memory=True,
-        persistent_workers=True
+        persistent_workers=PERSISTENT_WORKERS
     )
     
     print("TESTING BEST AUROC")
