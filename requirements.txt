@@ -10,3 +10,4 @@ sphinx
 furo
 myst-parser
 scikit-learn
+torchmetrics
