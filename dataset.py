@@ -26,10 +26,11 @@ class Split(IntEnum):
 
 def get_path(pid, data_dir):
     for ds, dce in PATHS:
-        matches = glob.glob(os.path.join(data_dir, ds, dce, f"{pid}*.nii.gz"))
-        
-        if matches:
-            return matches[0]
+        matches = sorted(glob.glob(os.path.join(data_dir, ds, dce, f"{pid}*.nii.gz")))
+        if len(matches) >= 3:
+            return matches[:3]
+    
+    return None
 
 class BreastDCEDataset(Dataset):
     def __init__(self, csv_dir, data_dir, split=Split.TRAIN):
@@ -56,16 +57,23 @@ class BreastDCEDataset(Dataset):
         pid = self.metadata.loc[index, 'pid']
         label = self.metadata.loc[index, 'pCR']
         
-        path = get_path(pid, self.data_dir)
-        nib_img = nibabel.load(path).get_fdata().astype(np.float32)
-        
-        nib_img = np.transpose(nib_img, (2, 1, 0))
-        nib_img = np.expand_dims(nib_img, axis=0) 
-        
-        img_tensor = torch.from_numpy(nib_img)
+        paths = get_path(pid, self.data_dir)
+
+        stack = []
+        for p in paths:
+            stack.append(nibabel.load(p).get_fdata().astype(np.float32))
+
+        img = np.stack(stack, axis=0)
+
+        img_tensor = torch.from_numpy(img)
         label_tensor = torch.tensor(label, dtype=torch.float32)
         
-        img_tensor = torch.nn.functional.interpolate(img_tensor.unsqueeze(0), size=(256, 256, 32), mode='trilinear', align_corners=False).squeeze(0)
+        img_tensor = torch.nn.functional.interpolate(
+            img_tensor.unsqueeze(0),
+            size=(32, 256, 256),
+            mode='trilinear',
+            align_corners=False
+        ).squeeze(0)
         
         # normalize voxel to [0, 1]
         img_tensor = (img_tensor - img_tensor.min()) / (img_tensor.max() - img_tensor.min())
@@ -81,14 +89,14 @@ if __name__ == "__main__":
 
     print(f"{len(dataset)} MRI scans found.")
     
-    # Show first mri photo
-    img = dataset[0][0].squeeze(0).numpy()
+    img, label = dataset[0]
+    fig, axes = plt.subplots(3, 3, figsize=(9, 9))
+    names = ["Pre-contrast", "Early post-contrast", "Late post-contrast"]
 
-    fig, axes = plt.subplots(1, 3, figsize=(9, 3))
-    
-    for i, s in enumerate([0, 15, 31]):
-        axes[i].imshow(img[:, :, s], cmap="gray")
-        axes[i].set_title(f"Slice {s+1}")
-        axes[i].axis("off")
-        
+    for n in range(3):
+        for i, j in enumerate([0, 15, 31]):
+            axes[n][i].imshow(img[n, j, :, :].numpy(), cmap="gray")
+            axes[n][i].set_title(f"{names[n]}: Slice {j + 1}")
+            axes[n][i].axis("off")
+
     plt.show()

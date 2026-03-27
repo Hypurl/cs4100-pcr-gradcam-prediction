@@ -45,7 +45,7 @@ class pcrCNN(pl.LightningModule):
         self.save_hyperparameters()
         
         self.encoder = nn.Sequential(
-            ConvBlock(1, 16),
+            ConvBlock(3, 16),
             ConvBlock(16, 32),
             ConvBlock(32, 64),
             ConvBlock(64, 128),
@@ -211,7 +211,7 @@ def main():
         validation_dataset,
         shuffle=False,
         batch_size=BATCH_SIZE,
-        num_workers=NUM_WORKERS,
+        num_workers=NUM_WORKERS//2,
         pin_memory=True,
         persistent_workers=PERSISTENT_WORKERS
     )
