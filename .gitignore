@@ -17,9 +17,9 @@ venv/
 env/
 
 # Model weights
-*.pth
 *.ckpt
 *.pt
+!model_samples/*.pth
 
 # Jupyter
 .ipynb_checkpoints/
