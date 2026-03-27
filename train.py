@@ -1,8 +1,9 @@
 """
-Traub a CNN using dataset.py
+Train a CNN using dataset.py
 """
 
 import pytorch_lightning as pl
+import torch.nn as nn
 from torch.utils.data import DataLoader
 from dataset import BreastDCEDataset
 
@@ -12,6 +13,19 @@ IMGPATH = "./data/BreastDCEDL_ISPY1_min_crop"
 BATCH_SIZE = 4
 LEARNING_RATE = 0.0001
 EPOCHS = 20
+SEED = 67
+
+class ConvBlock(nn.Module):
+    def __init__(self, num_input_channels, num_output_channels):
+        super().__init__()
+        self.block = nn.Sequential(nn.Conv3d(num_input_channels, num_output_channels, kernel_size=3, padding=1, bias=False),
+                                   nn.BatchNorm3d(num_output_channels),
+                                   nn.ReLU(inplace=True),
+                                   nn.MaxPool3d(kernel_size=2, stride=2)
+                                   )
+        
+        def forward(self, x):
+            return self.block(x)
 
 class pcrCNN(pl.LightningModule):
     
