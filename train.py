@@ -52,7 +52,7 @@ class pcrCNN(pl.LightningModule):
         )
         
         self.criterion = nn.BCEWithLogitsLoss(
-            pos_weight=torch.tensor([pos_weight])
+            pos_weight=torch.tensor([pos_weight], dtype=torch.float32)
         )
         
         self.train_auroc = AUROC(task="binary")
@@ -96,7 +96,7 @@ class pcrCNN(pl.LightningModule):
         
     def on_validation_epoch_end(self):
         self.log("val_auroc", self.val_auroc.compute(), prog_bar=True)
-        self.log("val_acc", self.val_acc,self.compute(), prog_bar=True)
+        self.log("val_acc", self.val_acc.compute(), prog_bar=True)
         
         self.val_auroc.reset()
         self.val_acc.reset()
@@ -184,7 +184,7 @@ def main():
     
     trainer.fit(model, training_dataloader, validation_dataloader)
     
-    torch.save(pcrCNN.load_from_checkpoint(checkpoint_callback.best_model_path).state_dict(), "model.pth")
+    torch.save(pcrCNN.load_from_checkpoint(checkpoint_callback.best_model_path, weights_only=False).state_dict(), "model.pth")
     
 
 if __name__ == "__main__":
