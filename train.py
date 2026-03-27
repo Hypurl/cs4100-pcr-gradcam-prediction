@@ -12,12 +12,14 @@ from dataset import BreastDCEDataset
 from sklearn.model_selection import train_test_split    
 import numpy as np
 
+torch.set_float32_matmul_precision("high")
+
 CSVPATH = "./data/BreastDCEDL_metadata_min_crop.csv"
 DATAPATH = "./data"
 
 BATCH_SIZE = 4
-LEARNING_RATE = 0.01
-EPOCHS = 2
+LEARNING_RATE = 0.0001
+EPOCHS = 30
 SEED = 67
 
 VALIDATION_SPLIT = 0.2
@@ -172,16 +174,18 @@ def main():
         training_dataset,
         shuffle=True,
         batch_size=BATCH_SIZE,
-        num_workers=0,
-        pin_memory=False
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True
     ) 
     
     validation_dataloader = DataLoader(
         validation_dataset,
         shuffle=False,
         batch_size=BATCH_SIZE,
-        num_workers=0,
-        pin_memory=False
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True
     )
     
     model = pcrCNN(learning_rate=LEARNING_RATE, pos_weight=pos_weight)
@@ -204,7 +208,8 @@ def main():
     
     trainer = pl.Trainer(
         max_epochs=EPOCHS,
-        accelerator="auto",
+        accelerator="cuda",
+        precision="32",
         devices=1,
         callbacks=[checkpoint_callback, early_stop_callback],
         log_every_n_steps=1
@@ -219,8 +224,9 @@ def main():
         test_dataset,
         shuffle=False,
         batch_size=BATCH_SIZE,
-        num_workers=0,
-        pin_memory=False
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True
     )
     
     trainer.test(model, test_dataloader, ckpt_path="best", weights_only=False)
