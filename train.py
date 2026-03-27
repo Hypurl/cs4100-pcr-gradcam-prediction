@@ -3,6 +3,7 @@ Train a CNN using dataset.py
 """
 
 import pytorch_lightning as pl
+import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from dataset import BreastDCEDataset
@@ -28,22 +29,48 @@ class ConvBlock(nn.Module):
             return self.block(x)
 
 class pcrCNN(pl.LightningModule):
-    
-    # TODO
-    def __init__(self):
+    def __init__(self, learning_rate=LEARNING_RATE):
         super().__init__()
+        self.save_hyperparameters()
         
-    # TODO: forward passes
+        self.encoder = nn.Sequential(ConvBlock(1, 8),
+                                     ConvBlock(8, 16),
+                                     ConvBlock(16, 32),
+                                     nn.AdaptiveAvgPool3d(1)
+                                     )
+        
+        self.classifier = nn.Sequential(nn.Flatten(),
+                                        nn.Linear(32, 16),
+                                        nn.ReLU(inplace=True),
+                                        nn.Dropout(0.5),
+                                        nn.Linear(16, 1)
+                                        )
+        
+        self.criterion = nn.BCEWithLogitsLoss()
+        
     def forward(self, x):
-        pass
-    
-    # TODO: find training loss
+        return self.classifier(self.encoder(x))
+
     def training_step(self, batch, batch_idx):
-        pass
+        loss = self.shared_step(batch)
+        self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        
+        return loss
     
-    # TODO: optimizer algorithm
+    def validation_step(self, batch, batch_idx):
+        loss = self.shared_step(batch)
+        self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        
+        return loss
+    
+    def shared_step(self, batch):
+        imgs, labels = batch
+        logits = self(imgs).squeeze(1)
+        
+        return self.criterion(logits, labels)
+    
     def configure_optimizers(self):
-        pass
+        return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
 
 def main():
     # TODO 
