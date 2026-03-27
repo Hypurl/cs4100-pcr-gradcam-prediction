@@ -17,7 +17,7 @@ torch.set_float32_matmul_precision("high")
 CSVPATH = "./data/BreastDCEDL_metadata_min_crop.csv"
 DATAPATH = "./data"
 
-BATCH_SIZE = 4
+BATCH_SIZE = 8
 LEARNING_RATE = 0.0001
 EPOCHS = 30
 SEED = 67
@@ -132,14 +132,14 @@ class pcrCNN(pl.LightningModule):
         
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
-            mode="min",
+            mode="max",
             factor=0.5,
             patience=5
         )
         
         return {
             "optimizer": optimizer,
-            "lr_scheduler": {"scheduler": scheduler, "monitor": "val_loss"}
+            "lr_scheduler": {"scheduler": scheduler, "monitor": "val_auroc"}
         }
 
 def main():
@@ -190,19 +190,29 @@ def main():
     
     model = pcrCNN(learning_rate=LEARNING_RATE, pos_weight=pos_weight)
     
-    checkpoint_callback = ModelCheckpoint(
+    ckpt_auroc = ModelCheckpoint(
+        dirpath="./checkpoints",
+        filename="{epoch:02d}-{val_auroc:.4f}",
+        monitor="val_auroc",
+        mode="max",
+        save_top_k=1,
+        verbose=True
+    )
+
+    ckpt_loss = ModelCheckpoint(
         dirpath="./checkpoints",
         filename="{epoch:02d}-{val_loss:.4f}",
         monitor="val_loss",
         mode="min",
-        save_top_k=3,
+        save_top_k=1,
         verbose=True
     )
     
+    
     early_stop_callback = EarlyStopping(
-        monitor="val_loss",
+        monitor="val_auroc",
         patience=8,
-        mode="min",
+        mode="max",
         verbose=True
     )
     
@@ -211,12 +221,18 @@ def main():
         accelerator="cuda",
         precision="32",
         devices=1,
-        callbacks=[checkpoint_callback, early_stop_callback],
+        callbacks=[ckpt_auroc, ckpt_loss, early_stop_callback],
         log_every_n_steps=1
     )
     
     trainer.fit(model, training_dataloader, validation_dataloader)
-    torch.save(pcrCNN.load_from_checkpoint(checkpoint_callback.best_model_path, weights_only=False).state_dict(), "model.pth")
+
+    best_auroc = pcrCNN.load_from_checkpoint(ckpt_auroc.best_model_path, weights_only=False)
+    torch.save(best_auroc.state_dict(), "model_best_auroc.pth")
+
+    best_loss = pcrCNN.load_from_checkpoint(ckpt_loss.best_model_path, weights_only=False)
+    torch.save(best_loss.state_dict(), "model_best_loss.pth")
+    
     
     test_dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=False)
     
@@ -229,8 +245,11 @@ def main():
         persistent_workers=True
     )
     
-    trainer.test(model, test_dataloader, ckpt_path="best", weights_only=False)
-    
+    print("TESTING BEST AUROC")
+    trainer.test(model, test_dataloader, ckpt_path=ckpt_auroc.best_model_path, weights_only=False)
+
+    print("TESTING BEST LOSS")
+    trainer.test(model, test_dataloader, ckpt_path=ckpt_loss.best_model_path, weights_only=False)
 
 if __name__ == "__main__":
     main()

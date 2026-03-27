@@ -11,3 +11,4 @@ furo
 myst-parser
 scikit-learn
 torchmetrics
+triton-windows
