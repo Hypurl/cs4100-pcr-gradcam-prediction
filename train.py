@@ -4,20 +4,23 @@ Train a CNN using dataset.py
 
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
-from pytorch_lightning.loggers import CSVLogger
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchmetrics import AUROC, Accuracy    
 from dataset import BreastDCEDataset
+from sklearn.model_selection import train_test_split    
+import numpy as np
 
 CSVPATH = "./data/BreastDCEDL_metadata_min_crop.csv"
 IMGPATH = "./data/BreastDCEDL_ISPY1_min_crop"
 
 BATCH_SIZE = 4
-LEARNING_RATE = 0.0001
-EPOCHS = 20
+LEARNING_RATE = 0.01
+EPOCHS = 2
 SEED = 67
+
+VALIDATION_SPLIT = 0.2
 
 class ConvBlock(nn.Module):
     def __init__(self, num_input_channels, num_output_channels):
@@ -119,18 +122,43 @@ class pcrCNN(pl.LightningModule):
         self.val_acc.reset()
                 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
+        optimizer = torch.optim.Adam(
+            self.parameters(),
+            lr=self.hparams.learning_rate,
+            weight_decay=0.001
+        )
+        
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode="min",
+            factor=0.5,
+            patience=5
+        )
+        
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {"scheduler": scheduler, "monitor": "val_loss"}
+        }
 
 def main():
     pl.seed_everything(SEED)
     
-    training_dataset = BreastDCEDataset(csv_dir=CSVPATH, img_dir=IMGPATH, training_set=True)
-    validation_dataset = BreastDCEDataset(csv_dir=CSVPATH, img_dir=IMGPATH, training_set=False)
+    # Validation takes 20% of training set rather than using the test set
+    full_set = BreastDCEDataset(csv_dir=CSVPATH, img_dir=IMGPATH, training_set=True)
+    labels = full_set.metadata["pCR"].values.astype(int)
+    
+    train_index, val_index = train_test_split(
+        np.arange(len(full_set)),
+        test_size=VALIDATION_SPLIT,
+        stratify=labels,
+        random_state=SEED
+    )
+    
+    training_dataset = torch.utils.data.Subset(full_set, train_index)
+    validation_dataset = torch.utils.data.Subset(full_set, val_index)
     
     print(f"Training set length: {len(training_dataset)}")
     print(f"Validation set length: {len(validation_dataset)}")
-    
-    labels = training_dataset.metadata["pCR"].values
     
     num_pos = labels.sum()
     num_neg = len(labels) - num_pos
@@ -183,8 +211,19 @@ def main():
     )
     
     trainer.fit(model, training_dataloader, validation_dataloader)
-    
     torch.save(pcrCNN.load_from_checkpoint(checkpoint_callback.best_model_path, weights_only=False).state_dict(), "model.pth")
+    
+    test_dataset = BreastDCEDataset(csv_dir=CSVPATH, img_dir=IMGPATH, training_set=False)
+    
+    test_dataloader = DataLoader(
+        test_dataset,
+        shuffle=False,
+        batch_size=BATCH_SIZE,
+        num_workers=0,
+        pin_memory=False
+    )
+    
+    trainer.test(model, test_dataloader, ckpt_path="best", weights_only=False)
     
 
 if __name__ == "__main__":

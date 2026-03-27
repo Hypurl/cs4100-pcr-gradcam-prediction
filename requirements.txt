@@ -9,3 +9,4 @@ opencv-python
 sphinx
 furo
 myst-parser
+scikit-learn
