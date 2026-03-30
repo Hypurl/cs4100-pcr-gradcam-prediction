@@ -1,17 +1,17 @@
 import numpy as np
 import torch, torch.nn as nn
 import model_outputs
-"""
-Inference layer using https://github.com/rachellea/hirescam
-
-Context: CNNs compute gradients :math:`K \in \mathbb{R}^{m \\times m}`
-
-Methodology: HiResCAM uses weighted gradients computed by the CNN
-
-
-"""
 
 class HiResCam():
+    """
+    Inference layer using https://github.com/rachellea/hirescam
+
+    Context: CNNs compute gradients :math:`K \in \mathbb{R}^{m \\times m}`
+
+    Methodology: HiResCAM uses weighted gradients computed by the CNN
+
+
+    """
     def __init__(self, model, device, label_meanings, model_name, target_layer_name):
         self.model = model
         self.model.eval()

@@ -8,3 +8,4 @@ Modules
    dataset
    hirescam
    visualize
+   pay_attn_model_outputs
