@@ -19,7 +19,7 @@ import matplotlib.cm as cm
 
 from dataset import BreastDCEDataset, Split
 from train import pcrCNN
-from hirescam import HiResCam  #not implemented yet
+from pay_attn.hirescam import HiResCam  #not implemented yet
 
 CSVPATH   = "./data/BreastDCEDL_metadata_min_crop.csv"
 DATAPATH  = "./data"
