@@ -1,6 +1,8 @@
 import numpy as np
-import torch, torch.nn as nn
+import torch
+
 import model_outputs
+
 
 class HiResCam():
     """
@@ -8,14 +10,13 @@ class HiResCam():
 
     Context: CNNs compute gradients :math:`K \in \mathbb{R}^{m \\times m}`
 
-    Methodology: HiResCAM uses weighted gradients computed by the CNN
-
-
+    Methodology: HiResCAM uses weighted gradients computed by the CNN to produce a heatmap :math:`L^c_{HiResCAM}
+    \in \mathbb{R}^{d \\times h \\times w}` that highlights important regions in the input volume for a given class :math:`c`.
     """
     def __init__(self, model, device, label_meanings, model_name, target_layer_name):
         self.model = model
         self.model.eval()
-        self.modeloutsputsclass = model_outputs.return_model_outputsclass(model_name)
+        self.modeloutputsclass = model_outputs.return_model_outputs_class(model_name)
         self.device = device
         self.label_meanings = label_meanings  # all the abnormalities IN ORDER
         self.model_name = model_name
@@ -50,7 +51,6 @@ class HiResCam():
 
         return self.hirescam(target_grads, target_activs)
 
-    @staticmethod
     def hirescam(self, target_grads, target_activs):
         raw_cam_volume = np.multiply(target_grads, target_activs)
         raw_cam_volume = np.sum(raw_cam_volume, axis=1) #sum over feature dimension; out shape [134, 6, 6]
