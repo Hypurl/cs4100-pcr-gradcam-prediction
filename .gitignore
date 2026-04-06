@@ -30,6 +30,8 @@ env/
 .vscode/
 .DS_Store
 
+build/
+
 # Training output
 checkpoints/
 lightning_logs/

@@ -31,7 +31,7 @@ TIME_NAMES   = ["Pre-contrast", "Early post-contrast", "Late post-contrast"]
 
 #Helper functions
 def load_model(path):
-    model = pcrCNN()
+    model = PcrCNN()
     model.load_state_dict(torch.load(path, map_location="cpu"))
     model.eval()
     return model
