@@ -9,7 +9,7 @@ class HiResCam():
     Inference layer adapted from https://github.com/rachellea/hirescam, Draelos & Carin, 2021 (arXiv:2011.08891)
     Context: CNNs compute gradients :math:`K \\in \\mathbb{R}^{m \\times m}`
 
-    Methodology: HiResCAM uses weighted gradients computed by the CNN to produce a heatmap :math:`L^c_{HiResCAM}
+    Methodology: HiResCAM uses gradients computed by the CNN to produce a heatmap :math:`L^c_{HiResCAM}
     \\in \\mathbb{R}^{d \\times h \\times w}` that highlights important regions in the input volume for a given class :math:`c`.
 
     See test.py for example usage.

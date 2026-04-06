@@ -28,7 +28,6 @@ model.to(device)
 cam = HiResCam(
     model=model,
     device=device,
-    label_meanings=['pCR'],
     model_name='PcrCNN',
     target_layer_name='3'
 )

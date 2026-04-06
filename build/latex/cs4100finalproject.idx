@@ -1,0 +1,42 @@
+\indexentry{module@\spxentry{module}!train@\spxentry{train}|hyperpage}{3}
+\indexentry{train@\spxentry{train}!module@\spxentry{module}|hyperpage}{3}
+\indexentry{ConvBlock (class in train)@\spxentry{ConvBlock}\spxextra{class in train}|hyperpage}{3}
+\indexentry{forward() (train.ConvBlock method)@\spxentry{forward()}\spxextra{train.ConvBlock method}|hyperpage}{3}
+\indexentry{PcrCNN (class in train)@\spxentry{PcrCNN}\spxextra{class in train}|hyperpage}{3}
+\indexentry{configure\_optimizers() (train.PcrCNN method)@\spxentry{configure\_optimizers()}\spxextra{train.PcrCNN method}|hyperpage}{3}
+\indexentry{forward() (train.PcrCNN method)@\spxentry{forward()}\spxextra{train.PcrCNN method}|hyperpage}{4}
+\indexentry{on\_test\_epoch\_end() (train.PcrCNN method)@\spxentry{on\_test\_epoch\_end()}\spxextra{train.PcrCNN method}|hyperpage}{5}
+\indexentry{on\_train\_batch\_end() (train.PcrCNN method)@\spxentry{on\_train\_batch\_end()}\spxextra{train.PcrCNN method}|hyperpage}{5}
+\indexentry{on\_train\_epoch\_end() (train.PcrCNN method)@\spxentry{on\_train\_epoch\_end()}\spxextra{train.PcrCNN method}|hyperpage}{5}
+\indexentry{on\_validation\_epoch\_end() (train.PcrCNN method)@\spxentry{on\_validation\_epoch\_end()}\spxextra{train.PcrCNN method}|hyperpage}{5}
+\indexentry{shared\_step() (train.PcrCNN method)@\spxentry{shared\_step()}\spxextra{train.PcrCNN method}|hyperpage}{5}
+\indexentry{test\_step() (train.PcrCNN method)@\spxentry{test\_step()}\spxextra{train.PcrCNN method}|hyperpage}{5}
+\indexentry{training\_step() (train.PcrCNN method)@\spxentry{training\_step()}\spxextra{train.PcrCNN method}|hyperpage}{7}
+\indexentry{validation\_step() (train.PcrCNN method)@\spxentry{validation\_step()}\spxextra{train.PcrCNN method}|hyperpage}{8}
+\indexentry{main() (in module train)@\spxentry{main()}\spxextra{in module train}|hyperpage}{9}
+\indexentry{module@\spxentry{module}!dataset@\spxentry{dataset}|hyperpage}{9}
+\indexentry{dataset@\spxentry{dataset}!module@\spxentry{module}|hyperpage}{9}
+\indexentry{BreastDCEDataset (class in dataset)@\spxentry{BreastDCEDataset}\spxextra{class in dataset}|hyperpage}{9}
+\indexentry{Split (class in dataset)@\spxentry{Split}\spxextra{class in dataset}|hyperpage}{10}
+\indexentry{TEST (dataset.Split attribute)@\spxentry{TEST}\spxextra{dataset.Split attribute}|hyperpage}{10}
+\indexentry{TRAIN (dataset.Split attribute)@\spxentry{TRAIN}\spxextra{dataset.Split attribute}|hyperpage}{10}
+\indexentry{VAL (dataset.Split attribute)@\spxentry{VAL}\spxextra{dataset.Split attribute}|hyperpage}{10}
+\indexentry{get\_path() (in module dataset)@\spxentry{get\_path()}\spxextra{in module dataset}|hyperpage}{10}
+\indexentry{module@\spxentry{module}!hirescam@\spxentry{hirescam}|hyperpage}{10}
+\indexentry{hirescam@\spxentry{hirescam}!module@\spxentry{module}|hyperpage}{10}
+\indexentry{HiResCam (class in hirescam)@\spxentry{HiResCam}\spxextra{class in hirescam}|hyperpage}{10}
+\indexentry{hirescam() (hirescam.HiResCam method)@\spxentry{hirescam()}\spxextra{hirescam.HiResCam method}|hyperpage}{10}
+\indexentry{return\_explanation() (hirescam.HiResCam method)@\spxentry{return\_explanation()}\spxextra{hirescam.HiResCam method}|hyperpage}{10}
+\indexentry{module@\spxentry{module}!visualize@\spxentry{visualize}|hyperpage}{11}
+\indexentry{visualize@\spxentry{visualize}!module@\spxentry{module}|hyperpage}{11}
+\indexentry{load\_model() (in module visualize)@\spxentry{load\_model()}\spxextra{in module visualize}|hyperpage}{11}
+\indexentry{main() (in module visualize)@\spxentry{main()}\spxextra{in module visualize}|hyperpage}{11}
+\indexentry{overlay\_heatmap\_on\_slice() (in module visualize)@\spxentry{overlay\_heatmap\_on\_slice()}\spxextra{in module visualize}|hyperpage}{11}
+\indexentry{upsample\_heatmap() (in module visualize)@\spxentry{upsample\_heatmap()}\spxextra{in module visualize}|hyperpage}{11}
+\indexentry{module@\spxentry{module}!model\_outputs@\spxentry{model\_outputs}|hyperpage}{11}
+\indexentry{model\_outputs@\spxentry{model\_outputs}!module@\spxentry{module}|hyperpage}{11}
+\indexentry{ModelOutputsPcrCNN (class in model\_outputs)@\spxentry{ModelOutputsPcrCNN}\spxextra{class in model\_outputs}|hyperpage}{11}
+\indexentry{get\_gradients() (model\_outputs.ModelOutputsPcrCNN method)@\spxentry{get\_gradients()}\spxextra{model\_outputs.ModelOutputsPcrCNN method}|hyperpage}{11}
+\indexentry{run\_model() (model\_outputs.ModelOutputsPcrCNN method)@\spxentry{run\_model()}\spxextra{model\_outputs.ModelOutputsPcrCNN method}|hyperpage}{11}
+\indexentry{save\_gradient() (model\_outputs.ModelOutputsPcrCNN method)@\spxentry{save\_gradient()}\spxextra{model\_outputs.ModelOutputsPcrCNN method}|hyperpage}{11}
+\indexentry{return\_model\_outputs\_class() (in module model\_outputs)@\spxentry{return\_model\_outputs\_class()}\spxextra{in module model\_outputs}|hyperpage}{11}
