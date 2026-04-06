@@ -45,7 +45,7 @@ class ModelOutputsPcrCNN():
         assert list(x.shape)[1:] == [3, 32, 256, 256]
         activations = {}
 
-        encoder = self.model.encoder._module.items()
+        encoder = self.model.encoder._modules.items()
 
         for name, module in encoder:
             x = module(x)
