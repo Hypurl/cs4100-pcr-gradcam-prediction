@@ -39,7 +39,7 @@ class ConvBlock(nn.Module):
     def forward(self, x):
         return self.block(x)
 
-class pcrCNN(pl.LightningModule):
+class PcrCNN(pl.LightningModule, nn.Module):
     def __init__(self, learning_rate=LEARNING_RATE, pos_weight=1.0):
         super().__init__()
         self.save_hyperparameters()

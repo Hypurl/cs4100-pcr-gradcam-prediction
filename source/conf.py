@@ -6,6 +6,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../pay_attn'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -35,3 +36,6 @@ exclude_patterns = []
 
 html_theme = 'furo'
 html_static_path = ['_static']
+
+# -- Options for PDF/LaTeX output --------------------------------------------
+plot_formats = [('png', 150)]

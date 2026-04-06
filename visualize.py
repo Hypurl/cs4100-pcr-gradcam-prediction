@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 from dataset import BreastDCEDataset, Split
-from train import pcrCNN
-from hirescam import HiResCam  #not implemented yet
+from train import PcrCNN
+from pay_attn.hirescam import HiResCam  #not implemented yet
 
 CSVPATH   = "./data/BreastDCEDL_metadata_min_crop.csv"
 DATAPATH  = "./data"
@@ -31,7 +31,7 @@ TIME_NAMES   = ["Pre-contrast", "Early post-contrast", "Late post-contrast"]
 
 #Helper functions
 def load_model(path):
-    model = pcrCNN()
+    model = PcrCNN()
     model.load_state_dict(torch.load(path, map_location="cpu"))
     model.eval()
     return model

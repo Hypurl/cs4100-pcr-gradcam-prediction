@@ -30,7 +30,6 @@ env/
 .vscode/
 .DS_Store
 
-# Sphinx build output
 build/
 
 # Training output
