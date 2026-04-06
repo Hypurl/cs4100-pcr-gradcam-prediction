@@ -1,15 +1,16 @@
 import os
 os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+import sys
 
+_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _root)
 import torch
 from train import PcrCNN
 from hirescam import HiResCam
-import sys
 import numpy as np
-sys.path.insert(0, '..')
 from dataset import BreastDCEDataset, Split
 
-dataset = BreastDCEDataset(csv_dir="../data/BreastDCEDL_metadata_min_crop.csv", data_dir="../data", split=Split.TEST)
+dataset = BreastDCEDataset(csv_dir=os.path.join(_root, "data/BreastDCEDL_metadata_min_crop.csv"), data_dir=os.path.join(_root, "data"), split=Split.TEST)
 
 # 1. Load the trained model
 if torch.cuda.is_available():
@@ -20,7 +21,7 @@ else:
     device = torch.device('cpu')
 
 model = PcrCNN()
-model.load_state_dict(torch.load('../model_samples/model_best_auroc.pth', map_location=device))
+model.load_state_dict(torch.load(os.path.join(_root, 'model_samples/model_best_auroc.pth'), map_location=device))
 model.to(device)
 
 # 2. Set up HiResCam
