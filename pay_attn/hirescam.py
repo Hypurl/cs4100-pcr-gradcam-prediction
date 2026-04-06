@@ -6,8 +6,7 @@ import model_outputs
 
 class HiResCam():
     """
-    Inference layer using https://github.com/rachellea/hirescam
-
+    Inference layer adapted from https://github.com/rachellea/hirescam, Draelos & Carin, 2021 (arXiv:2011.08891)
     Context: CNNs compute gradients :math:`K \\in \\mathbb{R}^{m \\times m}`
 
     Methodology: HiResCAM uses weighted gradients computed by the CNN to produce a heatmap :math:`L^c_{HiResCAM}
@@ -34,7 +33,7 @@ class HiResCam():
         """
         Compute the HiResCam heatmap for a single input volume.
 
-        :param ctvol:  Input volume of the shape (1, 3, 32, 256, 256). The caller is responsible for ensuring this is the case.
+        :param ctvol:  Input volume of the shape e.g (1, 3, 32, 256, 256). The caller is responsible for ensuring this is the case.
         :param chosen_label_index: Index of the class for which to compute the heatmap. For binary classification, this will always be 0.
         :return: Raw CAM volume of shape (1,D,H,W), where D, H, W are the spatial dimensions of the target layer's output..
         The caller is responsible for upsampling and visualizing this heatmap as desired.
