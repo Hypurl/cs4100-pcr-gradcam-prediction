@@ -49,3 +49,12 @@ print("Heatmap min:", heatmap.min())
 print("Heatmap max:", heatmap.max())
 print("Any NaN:", np.isnan(heatmap).any())
 print("All zeros:", (heatmap == 0).all())
+
+from heatmap import visualize
+visualize(
+    heatmap=heatmap,
+    img=img,
+    label=label,
+    sample_index=0,
+    save_path=os.path.join(_root, "hirescam_sample_0.png"),
+)
