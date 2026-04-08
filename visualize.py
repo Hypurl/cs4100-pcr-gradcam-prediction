@@ -61,7 +61,7 @@ def overlay_heatmap_on_slice(mri_slice: np.ndarray, heat_slice: np.ndarray, alph
     Returns an RGB array.
     """
     mri_rgb  = np.stack([mri_slice] * 3, axis=-1)
-    heat_rgb = cm.jet(heat_slice)[..., :3]
+    heat_rgb = plt.colormaps['jet'](heat_slice)[..., :3]
     return (1 - alpha) * mri_rgb + alpha * heat_rgb
 
 
@@ -70,21 +70,35 @@ def overlay_heatmap_on_slice(mri_slice: np.ndarray, heat_slice: np.ndarray, alph
 def main():
     #Data handling
     dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, split=Split.TEST)
-    img, label = dataset[SAMPLE_INDEX] 
-    img_batch = img.unsqueeze(0) 
+    img, label = dataset[SAMPLE_INDEX]
+    img_batch = img.unsqueeze(0)
     print(f"Sample index : {SAMPLE_INDEX}")
     print(f"True label   : {'PCR' if label.item() == 1 else 'No PCR'}")
 
     #Use sample models if on mac
+    device = torch.device("mps" if torch.backends.mps.is_available() else
+                          "cuda" if torch.cuda.is_available() else "cpu")
     model = load_model(MODEL_PATH)
+    model = model.to(device)
+    img_batch = img_batch.to(device)
 
+    #Run HiResCAM at the last encoder conv layer
+    cam_engine = HiResCam(
+        model=model,
+        device=device,
+        model_name='PcrCNN',
+        target_layer_name='3'
+    )
+    chosen_label = int(label.item())
+    raw_cam = cam_engine.return_explanation(
+        ctvol=img_batch,
+        chosen_label_index=chosen_label
+    )
+    # raw_cam is numpy (1, 2, 16, 16) — drop batch dim for upsampling
+    raw_cam_tensor = torch.from_numpy(raw_cam).squeeze(0)  # (2, 16, 16)
 
-    #PLACEHOLDER: replace with real HiResCam call once hirescam.py is done
-    cam_engine = HiResCam(model, target_layer=model.encoder[3])
-    raw_cam = cam_engine.compute(img_batch)
-   
     #Upsample heatmap to input volume dimensions (32, 256, 256)
-    heatmap = upsample_heatmap(raw_cam, target_size=(32, 256, 256))  # (32, 256, 256)
+    heatmap = upsample_heatmap(raw_cam_tensor, target_size=(32, 256, 256))  # (32, 256, 256)
     heatmap_np = heatmap.detach().numpy()
 
     #Predicted probability
