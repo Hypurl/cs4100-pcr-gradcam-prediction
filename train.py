@@ -49,12 +49,12 @@ class PcrCNN(pl.LightningModule, nn.Module):
             ConvBlock(16, 32),
             ConvBlock(32, 64),
             ConvBlock(64, 128),
-            nn.AdaptiveAvgPool3d((2, 2, 2))
+            nn.AdaptiveAvgPool3d((1, 1, 1))
         )
         
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(1024, 128),
+            nn.Linear(128, 128),
             nn.ReLU(inplace=True),
             nn.Dropout(0.5),
             nn.Linear(128, 1)
@@ -216,7 +216,7 @@ def main():
         persistent_workers=PERSISTENT_WORKERS
     )
     
-    model = pcrCNN(learning_rate=LEARNING_RATE, pos_weight=pos_weight)
+    model = PcrCNN(learning_rate=LEARNING_RATE, pos_weight=pos_weight)
     
     ckpt_auroc = ModelCheckpoint(
         dirpath="./checkpoints",
@@ -256,10 +256,10 @@ def main():
     
     trainer.fit(model, training_dataloader, validation_dataloader)
 
-    best_auroc = pcrCNN.load_from_checkpoint(ckpt_auroc.best_model_path, weights_only=False)
+    best_auroc = PcrCNN.load_from_checkpoint(ckpt_auroc.best_model_path, weights_only=False)
     torch.save(best_auroc.state_dict(), "model_best_auroc.pth")
 
-    best_loss = pcrCNN.load_from_checkpoint(ckpt_loss.best_model_path, weights_only=False)
+    best_loss = PcrCNN.load_from_checkpoint(ckpt_loss.best_model_path, weights_only=False)
     torch.save(best_loss.state_dict(), "model_best_loss.pth")
     
     # test_dataset = BreastDCEDataset(csv_dir=CSVPATH, data_dir=DATAPATH, training_set=False)

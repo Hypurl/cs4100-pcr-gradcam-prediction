@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-import model_outputs
+from pay_attn import model_outputs
 
 
 class HiResCam():
