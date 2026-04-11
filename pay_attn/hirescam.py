@@ -34,7 +34,9 @@ class HiResCam():
         Compute the HiResCam heatmap for a single input volume.
 
         :param ctvol:  Input volume of the shape e.g (1, 3, 32, 256, 256). The caller is responsible for ensuring this is the case.
-        :param chosen_label_index: Index of the class for which to compute the heatmap. For binary classification, this will always be 0.
+        :param chosen_label_index: Index of the class for which to compute the heatmap.
+            - 1 for regions that increase logit. (evidence FOR pCR)
+            - 0 for regions that decrease logit. (evidence AGAINST pCR)
         :return: Raw CAM volume of shape (1,D,H,W), where D, H, W are the spatial dimensions of the target layer's output..
         The caller is responsible for upsampling and visualizing this heatmap as desired.
         """
@@ -42,14 +44,12 @@ class HiResCam():
         extractor = self.modeloutputsclass(self.model, self.target_layer_name)
         self.all_target_activs_dict, output = extractor.run_model(ctvol)
 
-
-        one_hot = np.zeros((1, output.size()[-1]), dtype=np.float32)
-        one_hot[0][chosen_label_index] = 1
-        one_hot = torch.from_numpy(one_hot).requires_grad_(True).to(self.device)
-        one_hot = torch.sum(one_hot * output)
+        scalar = output.squeeze()
+        if chosen_label_index == 0:
+            scalar = -scalar
 
         self.model.zero_grad()
-        one_hot.backward(retain_graph=True)
+        scalar.backward(retain_graph=True)
 
         # grads_list is a list of gradients, for each of the target layers.
         # Hooks are registered when we do the backward pass, which is why
